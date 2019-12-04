@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="zh-cn" manifest="timecalc.appcache">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="renderer" content="webkit">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="screen-orientation" content="portrait">
+    <meta name="browsermode" content="application">
+    <meta name="x5-page-mode" content="app">
+    <title>经历本时间计算器</title>
+    <link rel="apple-touch-icon-precomposed" sizes="57x57" href="icon-57.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="icon-72.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="icon-114.png">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="icon-144.png">
+    <link rel="shortcut icon" href="icon.png">
+    <style type="text/css">
+        html,
+        body {
+            height: 100%;
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+        }
+        
+        body {
+            padding: 0;
+            margin: 0;
+            background-color: #000;
+            font: 16px/1.5 sans-serif;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        
+        #mainForm {
+            min-width: 300px;
+            max-width: 800px;
+            margin: 0 auto;
+            position: fixed;
+            top: 0px;
+            left: 0px;
+            right: 0px;
+            bottom: 0px;
+            overflow: hidden;
+        }
+        
+        #calc {
+            position: relative;
+            height: 100%;
+            margin: 0px 5px;
+            overflow: hidden;
+        }
+        
+        #display {
+            width: 100%;
+            height: 240px;
+            position: absolute;
+            top: 0px;
+            box-sizing: border-box;
+        }
+        
+        #timeCol {
+            width: 33.333%;
+            height: 100%;
+            float: left;
+        }
+        
+        #timeCol ul {
+            list-style: none;
+            padding: 0px;
+            margin: 0px;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        
+        #timeCol li {
+            width: 100%;
+            height: 10%;
+            font-size: 16px;
+            font-family: "Courier New", Courier, monospace;
+            font-weight: bold;
+            background-color: #666;
+            padding-right: 5px;
+            color: #FFF;
+            border-left: 1px solid #000;
+            border-top: 1px solid #000;
+            text-align: right;
+            box-sizing: border-box;
+        }
+        
+        #timeResult {
+            width: 66.666%;
+            height: 100%;
+            float: left;
+        }
+        
+        #timeResult ul {
+            list-style: none;
+            padding: 0px;
+            margin: 0px;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        
+        #timeResult li {
+            width: 100%;
+            padding-right: 5px;
+            background-color: #666;
+            color: #FFF;
+            border-left: 1px solid #000;
+            border-top: 1px solid #000;
+            box-sizing: border-box;
+        }
+        
+        #timeResult li.resultLabel {
+            text-align: center;
+            background-color: #555;
+            height: 10%;
+            font-size: 16px;
+        }
+        
+        #timeResult li.resultData {
+            text-align: right;
+            height: 40%;
+            font-size: 32px;
+        }
+        
+        #keyBoard {
+            width: 100%;
+            position: absolute;
+            top: 240px;
+            bottom: 0px;
+        }
+        
+        #keyBoard ul {
+            list-style: none;
+            padding: 0px;
+            margin: 0px;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        
+        #keyBoard li {
+            width: 33.333%;
+            height: 25%;
+            font-size: 32px;
+            float: left;
+            background-color: #333;
+            color: #FFF;
+            text-align: center;
+            border-left: 1px solid #000;
+            border-top: 1px solid #000;
+            box-sizing: border-box;
+        }
+        
+        #keyBoard li:hover {
+            background-color: #555;
+        }
+        
+        #keyBoard li:active {
+            background-color: #fff;
+            color: #000;
+        }
+        
+        li:before {
+            display: inline-block;
+            content: "";
+            height: 100%;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="mainForm">
+        <div id="calc">
+            <div id="display">
+                <div id="timeCol">
+                    <ul>
+                        <li>0:00</li>
+                        <li>1:11</li>
+                        <li>2:22</li>
+                        <li>3:33</li>
+                        <li>4:44</li>
+                        <li>5:55</li>
+                        <li>6:66</li>
+                        <li>7:77</li>
+                        <li>8:88</li>
+                        <li>9:99</li>
+                    </ul>
+                </div>
+                <div id="timeResult">
+                    <ul>
+                        <li class="resultLabel">总计</li>
+                        <li class="resultData" id="timeTotal">99999:99</li>
+                        <li class="resultLabel">小计</li>
+                        <li class="resultData" id="timePage">99999:99</li>
+                    </ul>
+                </div>
+            </div>
+            <div id="keyBoard">
+                <ul>
+                    <li class="num">7</li>
+                    <li class="num">8</li>
+                    <li class="num">9</li>
+                    <li class="num">4</li>
+                    <li class="num">5</li>
+                    <li class="num">6</li>
+                    <li class="num">1</li>
+                    <li class="num">2</li>
+                    <li class="num">3</li>
+                    <li id="keyDelete">C</li>
+                    <li class="num">0</li>
+                    <li id="keyPlus">+</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <script>
+        var oTimeCol;
+        var oTimeInputs;
+        var oTimeTotal;
+        var oTimePage;
+        var okeyBoard;
+        var oKeyButtons;
+        var indexColSelect = 0;
+        var strTimes = ["", "", "", "", "", "", "", "", "", ""];
+        var strTimePage = "";
+        var strTimeTotal = "";
+
+        function ready(fn) {
+            if (document.addEventListener) {
+                document.addEventListener('DOMContentLoaded', function() {
+                    document.removeEventListener('DOMContentLoaded', arguments.callee, false);
+                    fn();
+                }, false);
+            } else if (document.attachEvent) {
+                document.attachEvent('onreadystatechange', function() {
+                    if (document.readyState == 'complete') {
+                        document.detachEvent('onreadystatechange', arguments.callee);
+                        fn();
+                    }
+                });
+            }
+        };
+
+        function liTimeClick(obj) {
+            obj.style.backgroundColor = "#DDD";
+            obj.style.color = "#222";
+
+            for (i = 0; i < oTimeInputs.length; i++) {
+                if (oTimeInputs[i] != obj) {
+                    oTimeInputs[i].style.backgroundColor = "#666";
+                    oTimeInputs[i].style.color = "#FFF";
+                } else {
+                    indexColSelect = i;
+                    localStorage.setItem("TimeColIndex", indexColSelect);
+                }
+            };
+
+            if (oTimeTotal != obj) {
+                oTimeTotal.style.backgroundColor = "#666";
+                oTimeTotal.style.color = "#FFF";
+            } else {
+                indexColSelect = 11;
+            };
+
+            if (oTimePage != obj) {
+                oTimePage.style.backgroundColor = "#666";
+                oTimePage.style.color = "#FFF";
+            } else {
+                indexColSelect = 10;
+            };
+        }
+
+        function liButtonClick(obj) {
+            btnValue = obj.innerHTML;
+            if (btnValue == "C") {
+                if (indexColSelect < 10) {
+                    strTimes[indexColSelect] = "";
+                    oTimeInputs[indexColSelect].innerHTML = timeFormat(strTimes[indexColSelect]);
+                    localStorage.setItem("TimeCol" + indexColSelect.toString(), strTimes[indexColSelect]);
+                } else if (indexColSelect == 10) {
+                    for (i = 0; i < 10; i++) {
+                        strTimes[i] = "";
+                        oTimeInputs[i].innerHTML = timeFormat(strTimes[i]);
+                        localStorage.setItem("TimeCol" + i.toString(), strTimes[i]);
+                    }
+                    strTimePage = "";
+                    oTimePage.innerHTML = timeFormat(strTimePage);
+                    liTimeClick(oTimeInputs[0]);
+                } else if (indexColSelect == 11) {
+                    strTimeTotal = "";
+                    oTimeTotal.innerHTML = timeFormat(strTimeTotal);
+                }
+            } else if (btnValue == "+") {
+                if (indexColSelect < 10) {
+                    indexColSelect += 1;
+                    if (indexColSelect == 10) {
+                        liTimeClick(oTimePage);
+                    } else {
+                        liTimeClick(oTimeInputs[indexColSelect]);
+                    }
+                    strTimePage = "";
+                    for (i = 0; i < 10; i++) {
+                        strTimePage = timeAdd(strTimePage, strTimes[i]);
+                    }
+                    oTimePage.innerHTML = timeFormat(strTimePage);
+                } else if (indexColSelect == 10) {
+                    strTimeTotal = timeAdd(strTimeTotal, strTimePage);
+                    oTimeTotal.innerHTML = timeFormat(strTimeTotal);
+                    for (i = 0; i < 10; i++) {
+                        strTimes[i] = "";
+                        oTimeInputs[i].innerHTML = timeFormat(strTimes[i]);
+                        localStorage.setItem("TimeCol" + i.toString(), strTimes[i]);
+                    }
+                    strTimePage = "";
+                    oTimePage.innerHTML = timeFormat(strTimePage);
+                    liTimeClick(oTimeInputs[0]);
+                    localStorage.setItem("TimeTotal", strTimeTotal);
+                } else if (indexColSelect == 11) {
+                    for (i = 0; i < 10; i++) {
+                        strTimes[i] = "";
+                        oTimeInputs[i].innerHTML = timeFormat(strTimes[i]);
+                    }
+                    strTimePage = "";
+                    oTimePage.innerHTML = timeFormat(strTimePage);
+                    liTimeClick(oTimeInputs[0]);
+                }
+            } else {
+                if (indexColSelect < 10) {
+                    if ((btnValue != "0" || strTimes[indexColSelect] != "") && (strTimes[indexColSelect].length < 4)) {
+                        strTimes[indexColSelect] = strTimes[indexColSelect] + btnValue;
+                        oTimeInputs[indexColSelect].innerHTML = timeFormat(strTimes[indexColSelect]);
+                        localStorage.setItem("TimeCol" + indexColSelect.toString(), strTimes[indexColSelect]);
+                    }
+                } else if (indexColSelect == 10) {
+                    if ((btnValue != "0" || strTimePage != "") && (strTimePage.length < 5)) {
+                        strTimePage = strTimePage + btnValue;
+                        oTimePage.innerHTML = timeFormat(strTimePage);
+                    }
+                } else if (indexColSelect == 11) {
+                    if ((btnValue != "0" || strTimeTotal != "") && (strTimeTotal.length < 7)) {
+                        strTimeTotal = strTimeTotal + btnValue;
+                        oTimeTotal.innerHTML = timeFormat(strTimeTotal);
+                        localStorage.setItem("TimeTotal", strTimeTotal);
+                    }
+                }
+
+            }
+        }
+
+        function stopDefault(e) {
+            var event = e || window.event;
+            if (event.preventDefault) {
+                event.preventDefault();
+            } else {
+                event.returnValue = false;
+            }
+        }
+
+        function tap(element, fn) {
+            element.addEventListener('touchstart', function(e) {
+                this.style.backgroundColor = "#FFF";
+                this.style.color = "#000";
+            });
+
+            element.addEventListener('touchend', function(e) {
+                stopDefault(e);
+                this.style.backgroundColor = "#333";
+                this.style.color = "#FFF";
+                fn(element);
+            });
+
+            element.addEventListener('click', function(e) {
+                stopDefault(e);
+                fn(element);
+            });
+        }
+
+        function regClickEvents() {
+            for (i = 0; i < oTimeInputs.length; i++) {
+                oTimeInputs[i].onclick = function(e) {
+                    liTimeClick(this);
+                    stopDefault(e);
+                }
+            };
+
+            oTimeTotal.onclick = function(e) {
+                liTimeClick(this);
+                stopDefault(e);
+            };
+
+            oTimePage.onclick = function(e) {
+                liTimeClick(this);
+                stopDefault(e);
+            };
+
+            for (i = 0; i < oKeyButtons.length; i++) {
+                tap(oKeyButtons[i], liButtonClick);
+            };
+        }
+
+        ready(function() {
+            oTimeCol = document.getElementById("timeCol");
+            oTimeInputs = oTimeCol.getElementsByTagName("li");
+            oTimeTotal = document.getElementById("timeTotal");
+            oTimePage = document.getElementById("timePage");
+            okeyBoard = document.getElementById("keyBoard");
+            oKeyButtons = okeyBoard.getElementsByTagName("li");
+            regClickEvents();
+
+            oTimeInputs[0].style.backgroundColor = "#DDD";
+            oTimeInputs[0].style.color = "#222";
+
+            for (i = 0; i < 10; i++) {
+                strTimes[i] = localStorage.getItem("TimeCol" + i.toString()) || "";
+                oTimeInputs[i].innerHTML = timeFormat(strTimes[i]);
+            };
+            strTimePage = "";
+            for (i = 0; i < 10; i++) {
+                strTimePage = timeAdd(strTimePage, strTimes[i]);
+            }
+            oTimePage.innerHTML = timeFormat(strTimePage);
+            indexColSelect = parseInt(localStorage.getItem("TimeColIndex") || "0");
+            liTimeClick(oTimeInputs[indexColSelect]);
+            strTimeTotal = localStorage.getItem("TimeTotal") || "";
+            oTimeTotal.innerHTML = timeFormat(strTimeTotal);
+        });
+
+        function timeFormat(s) {
+            var st = "";
+            if (s.length == 0) {
+                st = "0:00";
+            } else if (s.length == 1) {
+                st = "0:0" + s;
+            } else if (s.length == 2) {
+                st = "0:" + s;
+            } else if (s.length > 2 && s.length < 10) {
+                st = s.substring(0, s.length - 2) + ":" + s.substring(s.length - 2);
+            } else if (s.length >= 10) {
+                st = "超出范围";
+            }
+            return st;
+        }
+
+        function timeAdd(s1, s2) {
+            var intHour1 = 0;
+            var intMin1 = 0;
+            var intHour2 = 0;
+            var intMin2 = 0;
+            var st = "";
+
+            if (s1.length == 0) {
+                intHour1 = 0;
+                intMin1 = 0;
+            } else if (s1.length == 1 || s1.length == 2) {
+                intHour1 = 0;
+                intMin1 = parseInt(s1);
+            } else if (s1.length > 2) {
+                intHour1 = parseInt(s1.substring(0, s1.length - 2));
+                intMin1 = parseInt(s1.substring(s1.length - 2));
+            }
+
+            if (s2.length == 0) {
+                intHour2 = 0;
+                intMin2 = 0;
+            } else if (s2.length == 1 || s2.length == 2) {
+                intHour2 = 0;
+                intMin2 = parseInt(s2);
+            } else if (s2.length > 2) {
+                intHour2 = parseInt(s2.substring(0, s2.length - 2));
+                intMin2 = parseInt(s2.substring(s2.length - 2));
+            }
+
+            intHour1 = intHour1 + intHour2;
+            intMin1 = intMin1 + intMin2;
+            if (intMin1 >= 60) {
+                intHour1 = intHour1 + parseInt(intMin1 / 60);
+                intMin1 = intMin1 % 60;
+            }
+
+            if (intMin1 < 10) {
+                st = intHour1.toString() + "0" + intMin1.toString();
+            } else if (intMin1 >= 10) {
+                st = intHour1.toString() + intMin1.toString();
+            }
+
+            if (intHour1 == 0 && intMin1 == 0) {
+                st = "";
+            }
+
+            return st;
+        }
+    </script>
+</body>
+
+</html>
